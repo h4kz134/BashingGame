@@ -14,7 +14,8 @@ import java.util.Random;
 
 /*Inputs: Q W E R U I O P */
 public class MakeGame extends GameObject {
-    
+
+    private int blockSpeed;
     private int difficulty;
     private Sprite qBlock;
     private Sprite wBlock;
@@ -27,7 +28,7 @@ public class MakeGame extends GameObject {
     ArrayList<Sprite> collision_box;
     ArrayList<Sprite> entity;
     ArrayList<Integer> pressed;
-    
+
     public MakeGame(GameEngine ge, int difficulty) {
         super(ge);
         this.difficulty = difficulty;
@@ -46,6 +47,8 @@ public class MakeGame extends GameObject {
         iBlock = new Sprite(getImage("iBlock.png"));
         oBlock = new Sprite(getImage("oBlock.png"));
         pBlock = new Sprite(getImage("pBlock.png"));
+
+        blockSpeed = 0;
 
         setCollisionArea();
     }
@@ -76,7 +79,7 @@ public class MakeGame extends GameObject {
             if (e.getY() > 640) {
                 sIter.remove();
             } else {
-                e.setY(e.getY() + 5);
+                e.setY(e.getY() + blockSpeed);
             }
         }
     }
@@ -107,6 +110,8 @@ public class MakeGame extends GameObject {
         int nBlocks = rand.nextInt(difficulty);
         int temp, index;
         index = -1;
+        blockSpeed = 4 + rand.nextInt(4);
+
         System.out.println(nBlocks);
         for (int i = 0; i <= nBlocks; i++) {
             do {
