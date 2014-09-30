@@ -12,7 +12,6 @@ public class BashingGame extends GameEngine {
         switch (i) {
             case 0:
                 return new MakeGame(this, 3);
-
         }
 
         return null;
