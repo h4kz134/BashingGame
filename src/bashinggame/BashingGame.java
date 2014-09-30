@@ -11,9 +11,8 @@ public class BashingGame extends GameEngine {
     public GameObject getGame(int i) {
         switch (i) {
             case 0:
-                return new MakeGame(this, 3);
+                return new MakeGame(this, 1);
         }
-
         return null;
     }
 

@@ -1,10 +1,11 @@
 package bashinggame;
 
-import com.golden.gamedev.Game;
 import com.golden.gamedev.GameEngine;
 import com.golden.gamedev.GameObject;
 import com.golden.gamedev.object.Sprite;
+import com.golden.gamedev.object.font.SystemFont;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -16,22 +17,23 @@ import java.util.Random;
 public class MakeGame extends GameObject {
 
     private int blockSpeed;
-    private int difficulty;
-    private Sprite qBlock;
-    private Sprite wBlock;
-    private Sprite eBlock;
-    private Sprite rBlock;
-    private Sprite uBlock;
-    private Sprite iBlock;
-    private Sprite oBlock;
-    private Sprite pBlock;
+    private int score;
+    private int timer;
+    private int delay;
+    private int delayMod;
+    private int maxBlocks;
+    private boolean scoreChecker;
+    private Random rand;
+    private SystemFont text;
     ArrayList<Sprite> collision_box;
     ArrayList<Sprite> entity;
     ArrayList<Integer> pressed;
 
     public MakeGame(GameEngine ge, int difficulty) {
         super(ge);
-        this.difficulty = difficulty;
+        text = new SystemFont(new Font("Courier", Font.PLAIN, 20), Color.white);
+        changeDifficulty(difficulty);
+        rand = new Random();
     }
 
     @Override
@@ -39,16 +41,9 @@ public class MakeGame extends GameObject {
         collision_box = new ArrayList();
         entity = new ArrayList();
         pressed = new ArrayList();
-        qBlock = new Sprite(getImage("qBlock.png"));
-        wBlock = new Sprite(getImage("wBlock.png"));
-        eBlock = new Sprite(getImage("eBlock.png"));
-        rBlock = new Sprite(getImage("rBlock.png"));
-        uBlock = new Sprite(getImage("uBlock.png"));
-        iBlock = new Sprite(getImage("iBlock.png"));
-        oBlock = new Sprite(getImage("oBlock.png"));
-        pBlock = new Sprite(getImage("pBlock.png"));
-
-        blockSpeed = 0;
+        scoreChecker = true;
+        timer = score = 0;
+        delay = 1;
 
         setCollisionArea();
     }
@@ -56,8 +51,11 @@ public class MakeGame extends GameObject {
     @Override
     public void update(long l) {
         /*spawn entity ONE AT A TIME FOR NOW*/
-        if (entity.isEmpty()) {
+        timer++;
+        if (timer % delay == 0) {
             spawn_entity();
+            timer = 0;
+            delay = rand.nextInt(20) + delayMod;
         }
 
         /*Input*/
@@ -68,7 +66,9 @@ public class MakeGame extends GameObject {
             /*check collision*/
             if (e.getY() > 560 && e.getY() <= 640 && pressed.contains((int) e.getX() / 80)) {
                 System.out.println("Block caught!");
+                score++;
                 sIter.remove();
+                scoreChecker = true;
             }
         }
 
@@ -91,11 +91,33 @@ public class MakeGame extends GameObject {
         gd.setColor(Color.BLACK);
         gd.fillRect(0, 0, getWidth(), 40);
 
+        text.drawString(gd, "Score: " + score, 10, 5);
+
         for (Sprite b : collision_box) {
             b.render(gd);
         }
         for (Sprite b : entity) {
             b.render(gd);
+        }
+    }
+
+    private void changeDifficulty(int difficulty) {
+        switch (difficulty) {
+            case 0:
+                delayMod = 40;
+                blockSpeed = 3;
+                maxBlocks = 1;
+                break;
+            case 1:
+                delayMod = 25;
+                blockSpeed = 5;
+                maxBlocks = 1;
+                break;
+            case 2:
+                delayMod = 25;
+                blockSpeed = 7;
+                maxBlocks = 2;
+                break;
         }
     }
 
@@ -106,13 +128,10 @@ public class MakeGame extends GameObject {
     }
 
     private void spawn_entity() {
-        Random rand = new Random();
-        int nBlocks = rand.nextInt(difficulty);
+        int nBlocks = rand.nextInt(maxBlocks);
         int temp, index;
         index = -1;
-        blockSpeed = 4 + rand.nextInt(4);
 
-        System.out.println(nBlocks);
         for (int i = 0; i <= nBlocks; i++) {
             do {
                 temp = rand.nextInt(8);
@@ -120,44 +139,28 @@ public class MakeGame extends GameObject {
             index = temp;
             switch (index) {
                 case 0:
-                    qBlock.setX(index * 80);
-                    qBlock.setY(40);
-                    entity.add(qBlock);
+                    entity.add(new Sprite(getImage("qBlock.png"), index * 80, 40));
                     break;
                 case 1:
-                    wBlock.setX(index * 80);
-                    wBlock.setY(40);
-                    entity.add(wBlock);
+                    entity.add(new Sprite(getImage("wBlock.png"), index * 80, 40));
                     break;
                 case 2:
-                    eBlock.setX(index * 80);
-                    eBlock.setY(40);
-                    entity.add(eBlock);
+                    entity.add(new Sprite(getImage("eBlock.png"), index * 80, 40));
                     break;
                 case 3:
-                    rBlock.setX(index * 80);
-                    rBlock.setY(40);
-                    entity.add(rBlock);
+                    entity.add(new Sprite(getImage("rBlock.png"), index * 80, 40));
                     break;
                 case 4:
-                    uBlock.setX(index * 80);
-                    uBlock.setY(40);
-                    entity.add(uBlock);
+                    entity.add(new Sprite(getImage("uBlock.png"), index * 80, 40));
                     break;
                 case 5:
-                    iBlock.setX(index * 80);
-                    iBlock.setY(40);
-                    entity.add(iBlock);
+                    entity.add(new Sprite(getImage("iBlock.png"), index * 80, 40));
                     break;
                 case 6:
-                    oBlock.setX(index * 80);
-                    oBlock.setY(40);
-                    entity.add(oBlock);
+                    entity.add(new Sprite(getImage("oBlock.png"), index * 80, 40));
                     break;
                 case 7:
-                    pBlock.setX(index * 80);
-                    pBlock.setY(40);
-                    entity.add(pBlock);
+                    entity.add(new Sprite(getImage("pBlock.png"), index * 80, 40));
                     break;
             }
         }
@@ -166,48 +169,56 @@ public class MakeGame extends GameObject {
     private void listenInput() {
         if (keyDown(KeyEvent.VK_Q)) {
             pressed.add(0);
+            scoreChecker = false;
         } else if (!keyDown(KeyEvent.VK_Q)) {
             pressed.remove(Integer.valueOf(0));
         }
 
         if (keyDown(KeyEvent.VK_W)) {
             pressed.add(1);
+            scoreChecker = false;
         } else if (!keyDown(KeyEvent.VK_W)) {
             pressed.remove(Integer.valueOf(1));
         }
 
         if (keyDown(KeyEvent.VK_E)) {
             pressed.add(2);
+            scoreChecker = false;
         } else if (!keyDown(KeyEvent.VK_E)) {
             pressed.remove(Integer.valueOf(2));
         }
 
         if (keyDown(KeyEvent.VK_R)) {
             pressed.add(3);
+            scoreChecker = false;
         } else if (!keyDown(KeyEvent.VK_R)) {
             pressed.remove(Integer.valueOf(3));
         }
 
         if (keyDown(KeyEvent.VK_U)) {
             pressed.add(4);
+            scoreChecker = false;
         } else if (!keyDown(KeyEvent.VK_U)) {
             pressed.remove(Integer.valueOf(4));
         }
 
         if (keyDown(KeyEvent.VK_I)) {
             pressed.add(5);
+            scoreChecker = false;
         } else if (!keyDown(KeyEvent.VK_I)) {
             pressed.remove(Integer.valueOf(5));
         }
 
         if (keyDown(KeyEvent.VK_O)) {
             pressed.add(6);
+            scoreChecker = false;
         } else if (!keyDown(KeyEvent.VK_O)) {
             pressed.remove(Integer.valueOf(6));
         }
 
         if (keyDown(KeyEvent.VK_P)) {
             pressed.add(7);
+            scoreChecker = false;
         } else if (!keyDown(KeyEvent.VK_P)) {
             pressed.remove(Integer.valueOf(7));
         }
