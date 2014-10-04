@@ -7,11 +7,24 @@ import java.awt.Dimension;
 
 public class BashingGame extends GameEngine {
 
+    GameSettings settings;
+    HighScore highScore;
+
+    public BashingGame() {
+        settings = new GameSettings();
+        highScore = new HighScore();
+        highScore.initializeHighScores();
+    }
+
     @Override
     public GameObject getGame(int i) {
         switch (i) {
             case 0:
-                return new MakeGame(this, 1);
+                return new MainMenu(this, settings);
+            case 1:
+                return new MakeGame(this, settings, highScore);
+            case 2:
+                return new MultiplayerGame(this);
         }
         return null;
     }
